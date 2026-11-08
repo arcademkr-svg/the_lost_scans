@@ -1,0 +1,1867 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>THE LOST SCANS // Protocolo Eniac</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Shrikhand&family=VT323&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --circus-sky: #3b95e3;
+      --circus-sky-light: #7cc6fe;
+      --circus-red: #f32b42;
+      --circus-red-dark: #9e1122;
+      --circus-yellow: #ffd026;
+      --circus-blue-dark: #15224a;
+      --circus-purple: #7b35c4;
+      --circus-green: #2ed162;
+      --circus-cream: #fff9e8;
+      --circus-white: #ffffff;
+      --ink: #161224;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--circus-sky);
+      background-image: 
+        radial-gradient(circle at 50% 18%, var(--circus-sky-light) 0%, var(--circus-sky) 70%, #2364aa 100%);
+      color: var(--ink);
+      font-family: 'Fredoka', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 80px 16px 120px 16px;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* CONFETTI CANVAS */
+    #confetti-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 999;
+    }
+
+    /* ESCENOGRAFÍA DE FONDO DE LA SERIE (DIGITAL CIRCUS) */
+    .tadc-scenery {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+      overflow: hidden;
+    }
+
+    /* Cortinas rojas laterales del intro de Gooseworx */
+    .stage-curtain-left,
+    .stage-curtain-right {
+      position: absolute;
+      top: 0;
+      width: 110px;
+      height: 100vh;
+      background: repeating-linear-gradient(
+        90deg,
+        #b81124 0px,
+        #e82038 22px,
+        #7a0916 44px
+      );
+      border-right: 4px solid var(--ink);
+      box-shadow: 10px 0 30px rgba(0,0,0,0.45);
+      z-index: 2;
+    }
+
+    .stage-curtain-right {
+      right: 0;
+      border-right: none;
+      border-left: 4px solid var(--ink);
+      box-shadow: -10px 0 30px rgba(0,0,0,0.45);
+    }
+
+    /* Suelo de baldosas de ajedrez 3D */
+    .checker-floor-bg {
+      position: absolute;
+      bottom: -10px;
+      left: -10%;
+      width: 120%;
+      height: 180px;
+      background: 
+        linear-gradient(45deg, #14111f 25%, transparent 25%), 
+        linear-gradient(-45deg, #14111f 25%, transparent 25%), 
+        linear-gradient(45deg, transparent 75%, #14111f 75%), 
+        linear-gradient(-45deg, transparent 75%, #14111f 75%);
+      background-size: 56px 56px;
+      background-color: #f7f4eb;
+      border-top: 5px solid var(--ink);
+      transform: perspective(400px) rotateX(55deg);
+      transform-origin: bottom;
+      z-index: 1;
+      box-shadow: 0 -10px 30px rgba(0,0,0,0.3);
+    }
+
+    /* Elementos flotantes icónicos de la serie */
+    .floating-prop {
+      position: absolute;
+      z-index: 2;
+      filter: drop-shadow(4px 6px 0px var(--ink));
+      animation: floatProp 6s ease-in-out infinite alternate;
+    }
+
+    @keyframes floatProp {
+      0% { transform: translateY(0px) rotate(-4deg); }
+      100% { transform: translateY(-18px) rotate(6deg); }
+    }
+
+    /* Letrero EXIT falso */
+    .prop-exit {
+      top: 12%;
+      right: 12%;
+      background: var(--circus-red);
+      color: var(--circus-white);
+      font-family: 'VT323', monospace;
+      font-size: 2rem;
+      font-weight: bold;
+      padding: 4px 16px;
+      border: 3.5px solid var(--ink);
+      border-radius: 8px;
+      letter-spacing: 3px;
+      box-shadow: 0 0 18px rgba(243, 43, 66, 0.8), 4px 4px 0 var(--ink);
+      animation: exitGlitch 3.5s infinite;
+    }
+
+    @keyframes exitGlitch {
+      0%, 92%, 100% { transform: rotate(8deg) scale(1); opacity: 1; }
+      94% { transform: rotate(5deg) scale(1.06) skewX(8deg); opacity: 0.8; }
+      96% { transform: rotate(10deg) scale(0.97) skewX(-8deg); opacity: 1; }
+    }
+
+    /* Bloques ABC de juguete */
+    .prop-block {
+      width: 58px;
+      height: 58px;
+      border: 3.5px solid var(--ink);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Shrikhand', cursive;
+      font-size: 2rem;
+      color: var(--ink);
+    }
+
+    .block-a {
+      top: 15%;
+      left: 12%;
+      background: var(--circus-yellow);
+      animation-delay: -1s;
+    }
+
+    .block-b {
+      bottom: 22%;
+      left: 10%;
+      background: var(--circus-green);
+      animation-delay: -3s;
+    }
+
+    .block-c {
+      bottom: 25%;
+      right: 11%;
+      background: #ff6ec7;
+      animation-delay: -2s;
+    }
+
+    /* Esferas de lunares estilo logo Digital Circus */
+    .polka-orb {
+      position: absolute;
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      border: 3.5px solid var(--ink);
+      background-color: var(--circus-red);
+      background-image: radial-gradient(var(--circus-white) 22%, transparent 23%);
+      background-size: 22px 22px;
+      box-shadow: inset -8px -8px 0 rgba(0,0,0,0.2), 4px 6px 0 var(--ink);
+      top: 48%;
+      left: 8%;
+      animation: floatProp 7s ease-in-out infinite alternate-reverse;
+    }
+
+    /* Guiño a los ojos de Abstracción en una esquina */
+    .abstraction-patch {
+      position: absolute;
+      top: 46%;
+      right: 9%;
+      width: 68px;
+      height: 68px;
+      background: #0c0914;
+      border: 3px solid var(--ink);
+      border-radius: 42% 58% 60% 40% / 45% 45% 55% 55%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      flex-wrap: wrap;
+      padding: 8px;
+      box-shadow: 0 0 15px rgba(255, 0, 128, 0.5);
+      animation: floatProp 5s ease-in-out infinite alternate;
+    }
+
+    .abs-eye {
+      width: 18px;
+      height: 11px;
+      background: #ff2a85;
+      border-radius: 50%;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: blinkEye 4s infinite;
+    }
+
+    .abs-eye:nth-child(2) { background: #00f0ff; animation-delay: 1.2s; }
+    .abs-eye:nth-child(3) { background: #ffe600; animation-delay: 2.5s; }
+
+    .abs-eye::after {
+      content: "";
+      width: 6px;
+      height: 6px;
+      background: #000;
+      border-radius: 50%;
+    }
+
+    @keyframes blinkEye {
+      0%, 94%, 100% { transform: scaleY(1); }
+      97% { transform: scaleY(0.1); }
+    }
+
+    /* BARRA DE CONTROLES DE AUDIO */
+    .audio-toolbar {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 100;
+      display: flex;
+      gap: 10px;
+    }
+
+    .sound-toggle {
+      background: var(--circus-white);
+      color: var(--ink);
+      border: 3px solid var(--ink);
+      border-radius: 14px;
+      padding: 8px 14px;
+      font-family: 'Fredoka', sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      box-shadow: 4px 4px 0px var(--ink);
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .sound-toggle:hover {
+      background: var(--circus-yellow);
+      transform: translate(-1px, -1px);
+      box-shadow: 5px 5px 0px var(--ink);
+    }
+
+    .sound-toggle.muted {
+      background: #e2dfeb;
+      color: #6c6782;
+    }
+
+    /* CONTENEDOR CENTRAL */
+    .container {
+      width: 100%;
+      max-width: 800px;
+      z-index: 10;
+    }
+
+    /* HOST CARD // ENIAC */
+    .host-card {
+      background: var(--circus-white);
+      border: 4px solid var(--ink);
+      border-radius: 20px;
+      padding: 18px 24px;
+      margin-bottom: 22px;
+      display: flex;
+      gap: 18px;
+      align-items: center;
+      box-shadow: 7px 7px 0px var(--ink);
+      position: relative;
+    }
+
+    .host-badge {
+      background: var(--circus-red);
+      color: var(--circus-white);
+      font-family: 'Shrikhand', cursive;
+      font-size: 1.3rem;
+      padding: 6px 16px;
+      border-radius: 12px;
+      border: 3px solid var(--ink);
+      box-shadow: 3px 3px 0px var(--ink);
+      letter-spacing: 1px;
+      white-space: nowrap;
+      transform: rotate(-2deg);
+    }
+
+    .host-speech {
+      font-size: 1.05rem;
+      line-height: 1.45;
+      color: var(--ink);
+      font-weight: 600;
+    }
+
+    /* TARJETA PRINCIPAL */
+    .card {
+      background: var(--circus-cream);
+      border: 5px solid var(--ink);
+      border-radius: 28px;
+      padding: 34px 30px;
+      box-shadow: 12px 12px 0px var(--circus-blue-dark);
+      position: relative;
+    }
+
+    /* BARRA DE PROGRESO */
+    .progress-bar-wrap {
+      width: 100%;
+      height: 18px;
+      background: var(--circus-white);
+      border: 3px solid var(--ink);
+      border-radius: 12px;
+      margin-bottom: 22px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 10%;
+      background: repeating-linear-gradient(
+        -45deg,
+        var(--circus-red),
+        var(--circus-red) 14px,
+        var(--circus-yellow) 14px,
+        var(--circus-yellow) 28px
+      );
+      transition: width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .question-tracker {
+      font-weight: 700;
+      font-size: 1.15rem;
+      color: var(--circus-white);
+      background: var(--circus-purple);
+      padding: 4px 14px;
+      border-radius: 10px;
+      border: 2.5px solid var(--ink);
+      display: inline-block;
+      margin-bottom: 10px;
+      box-shadow: 3px 3px 0px var(--ink);
+    }
+
+    .question-title {
+      font-size: 1.35rem;
+      font-weight: 700;
+      margin-bottom: 22px;
+      line-height: 1.4;
+      color: var(--ink);
+    }
+
+    .options-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    /* BOTONES A-F */
+    .opt-btn {
+      background: var(--circus-white);
+      border: 3.5px solid var(--ink);
+      border-radius: 16px;
+      padding: 14px 18px;
+      color: var(--ink);
+      font-family: 'Fredoka', sans-serif;
+      font-size: 1.02rem;
+      font-weight: 600;
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.14s ease;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      line-height: 1.4;
+      box-shadow: 4px 4px 0px var(--ink);
+    }
+
+    .opt-btn:hover {
+      background: #fff2bd;
+      transform: translate(-2px, -2px);
+      box-shadow: 6px 6px 0px var(--ink);
+    }
+
+    .opt-btn:active {
+      transform: translate(2px, 2px);
+      box-shadow: 1px 1px 0px var(--ink);
+    }
+
+    .opt-index {
+      background: var(--circus-yellow);
+      color: var(--ink);
+      border: 2.5px solid var(--ink);
+      font-family: 'Shrikhand', cursive;
+      font-size: 1.15rem;
+      min-width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 10px;
+      flex-shrink: 0;
+      box-shadow: 2px 2px 0px var(--ink);
+    }
+
+    .opt-btn:nth-child(2) .opt-index { background: #ff7aa8; }
+    .opt-btn:nth-child(3) .opt-index { background: #6fd3ff; }
+    .opt-btn:nth-child(4) .opt-index { background: #80ed99; }
+    .opt-btn:nth-child(5) .opt-index { background: #d0a9ff; }
+    .opt-btn:nth-child(6) .opt-index { background: #ffb36b; }
+
+    /* PANTALLA INICIAL */
+    .intro-view {
+      text-align: center;
+      padding: 20px 8px;
+    }
+
+    .logo-banner {
+      display: inline-block;
+      background: var(--circus-purple);
+      color: var(--circus-yellow);
+      font-family: 'VT323', monospace;
+      font-size: 1.4rem;
+      padding: 4px 16px;
+      border-radius: 99px;
+      border: 3px solid var(--ink);
+      margin-bottom: 12px;
+      letter-spacing: 2px;
+      box-shadow: 3px 3px 0px var(--ink);
+    }
+
+    .intro-title {
+      font-family: 'Shrikhand', cursive;
+      font-size: 3.3rem;
+      color: var(--circus-red);
+      letter-spacing: 2px;
+      line-height: 1.1;
+      margin-bottom: 16px;
+      text-transform: uppercase;
+      text-shadow: 
+        4px 4px 0px var(--circus-yellow),
+        7px 7px 0px var(--ink);
+    }
+
+    .intro-desc {
+      color: #2f2a45;
+      font-size: 1.15rem;
+      font-weight: 600;
+      max-width: 580px;
+      margin: 0 auto 30px auto;
+      line-height: 1.6;
+    }
+
+    .start-btn {
+      background: var(--circus-yellow);
+      color: var(--ink);
+      border: 4px solid var(--ink);
+      font-family: 'Shrikhand', cursive;
+      font-size: 1.6rem;
+      padding: 16px 42px;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      letter-spacing: 1.5px;
+      box-shadow: 6px 6px 0px var(--ink);
+      display: inline-block;
+    }
+
+    .start-btn:hover {
+      background: #ffe169;
+      transform: translate(-3px, -3px) scale(1.02);
+      box-shadow: 9px 9px 0px var(--ink);
+    }
+
+    /* ESCENARIO 3D MEJORADO DEL PASILLO DE LAS HABITACIONES */
+    .stage-view {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 520px;
+      perspective: 1100px;
+      position: relative;
+      border-radius: 22px;
+      overflow: hidden;
+      border: 4px solid var(--ink);
+      background: #230d38;
+    }
+
+    .hallway-scene {
+      width: 100%;
+      height: 100%;
+      min-height: 520px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: transform 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+      transform-style: preserve-3d;
+    }
+
+    .hallway-scene.camera-zoom {
+      transform: scale(1.75) translateY(15px);
+    }
+
+    /* Pared del pasillo de Digital Circus */
+    .hallway-bg {
+      position: absolute;
+      inset: 0;
+      background: 
+        radial-gradient(circle at 50% 45%, rgba(255, 214, 79, 0.22) 0%, transparent 60%),
+        repeating-linear-gradient(90deg, #4c1d73 0px, #4c1d73 48px, #371256 48px, #371256 96px);
+      z-index: 1;
+    }
+
+    /* Zócalo amarillo/madera del pasillo */
+    .hallway-wainscot {
+      position: absolute;
+      bottom: 36%;
+      left: 0;
+      width: 100%;
+      height: 16px;
+      background: var(--circus-yellow);
+      border-top: 4px solid var(--ink);
+      border-bottom: 4px solid var(--ink);
+      z-index: 2;
+    }
+
+    .floor-check {
+      position: absolute;
+      bottom: 0;
+      left: -10%;
+      width: 120%;
+      height: 38%;
+      background: 
+        linear-gradient(45deg, #161124 25%, transparent 25%), 
+        linear-gradient(-45deg, #161124 25%, transparent 25%), 
+        linear-gradient(45deg, transparent 75%, #161124 75%), 
+        linear-gradient(-45deg, transparent 75%, #161124 75%);
+      background-size: 42px 42px;
+      background-color: #faf6ed;
+      transform: perspective(300px) rotateX(55deg);
+      transform-origin: bottom;
+      z-index: 2;
+    }
+
+    /* PUERTA 3D MEJORADA */
+    .door-frame {
+      width: 246px;
+      height: 386px;
+      background: #5c2c14;
+      border: 8px solid var(--ink);
+      border-radius: 18px 18px 0 0;
+      position: relative;
+      z-index: 5;
+      perspective: 1000px;
+      box-shadow: 0 15px 45px rgba(0,0,0,0.8);
+      transform-style: preserve-3d;
+      transition: box-shadow 0.5s ease;
+    }
+
+    .door-frame.glow-active {
+      box-shadow: 0 0 55px var(--circus-yellow), 0 0 90px var(--circus-red);
+    }
+
+    .door-panel {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #a8582b 0%, #87431d 50%, #6b3212 100%);
+      position: absolute;
+      top: 0;
+      left: 0;
+      transform-origin: left center;
+      transition: transform 1.5s cubic-bezier(0.22, 1, 0.36, 1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 34px 24px 28px 24px;
+      border-right: 4px solid var(--ink);
+      box-shadow: inset 0 0 18px rgba(0,0,0,0.45);
+      z-index: 4;
+      backface-visibility: visible;
+    }
+
+    /* Molduras de madera de la puerta */
+    .door-molding-top {
+      width: 100%;
+      height: 150px;
+      border: 4px solid #4a210b;
+      background: rgba(0, 0, 0, 0.14);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: inset 3px 3px 0 rgba(0,0,0,0.35);
+    }
+
+    .door-molding-bottom {
+      width: 100%;
+      height: 120px;
+      border: 4px solid #4a210b;
+      background: rgba(0, 0, 0, 0.14);
+      border-radius: 10px;
+      box-shadow: inset 3px 3px 0 rgba(0,0,0,0.35);
+    }
+
+    /* MEDALLÓN DE MISTERIO '?' */
+    .door-medallion {
+      width: 106px;
+      height: 106px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #5b288f 0%, #2a0d47 100%);
+      border: 6px solid var(--circus-yellow);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 22px rgba(255, 208, 38, 0.75), 0 4px 0 var(--ink);
+      transition: transform 0.3s ease;
+    }
+
+    .door-medallion-sign {
+      font-family: 'Shrikhand', cursive;
+      font-size: 4.2rem;
+      color: var(--circus-yellow);
+      text-shadow: 3px 3px 0px var(--ink);
+      animation: pulseQuestion 0.6s ease-in-out infinite alternate;
+    }
+
+    @keyframes pulseQuestion {
+      from { transform: scale(0.95) rotate(-5deg); }
+      to { transform: scale(1.1) rotate(5deg); }
+    }
+
+    /* POMO DORADO CON GIRO */
+    .door-knob {
+      position: absolute;
+      right: 14px;
+      top: 53%;
+      width: 28px;
+      height: 28px;
+      background: radial-gradient(circle at 30% 30%, #fff6b3, #e09f00 70%, #7d5600 100%);
+      border-radius: 50%;
+      border: 3px solid var(--ink);
+      box-shadow: 3px 4px 0px rgba(0,0,0,0.6);
+      transition: transform 0.4s ease;
+    }
+
+    .door-knob::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 12px;
+      height: 4px;
+      background: #7d5600;
+      transform: translate(-50%, -50%);
+      border-radius: 2px;
+    }
+
+    .knob-turn .door-knob {
+      transform: rotate(65deg) scale(1.1);
+    }
+
+    /* INTERIOR DE LA HABITACIÓN REVELADA */
+    .room-interior {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      inset: 0;
+      background: 
+        radial-gradient(circle, #fff7c2 0%, #ffcf33 35%, #8135c4 85%, #230b3b 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 1;
+      overflow: hidden;
+    }
+
+    .sunburst-rays {
+      position: absolute;
+      width: 380px;
+      height: 380px;
+      background: repeating-conic-gradient(
+        from 0deg,
+        rgba(255, 255, 255, 0.28) 0deg 15deg,
+        transparent 15deg 30deg
+      );
+      animation: spinRays 10s linear infinite;
+    }
+
+    @keyframes spinRays {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .revealed-avatar {
+      width: 136px;
+      height: 136px;
+      border-radius: 50%;
+      border: 5px solid var(--ink);
+      background: var(--circus-white);
+      box-shadow: 0 0 35px rgba(255, 255, 255, 0.95);
+      object-fit: cover;
+      transform: scale(0.3);
+      opacity: 0;
+      z-index: 3;
+      transition: all 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) 0.4s;
+    }
+
+    .rumble {
+      animation: doorDrumShake 0.14s ease-in-out infinite alternate;
+    }
+
+    @keyframes doorDrumShake {
+      0% { transform: translate(-3px, 1px) rotate(-1deg); }
+      100% { transform: translate(3px, -2px) rotate(1deg); }
+    }
+
+    .door-open .door-panel {
+      transform: rotateY(-118deg);
+    }
+
+    .door-open .revealed-avatar {
+      transform: scale(1.12);
+      opacity: 1;
+    }
+
+    .door-status-banner {
+      position: absolute;
+      bottom: 18px;
+      z-index: 10;
+      background: var(--circus-white);
+      border: 3px solid var(--ink);
+      padding: 6px 18px;
+      border-radius: 99px;
+      font-weight: 700;
+      font-size: 1rem;
+      box-shadow: 4px 4px 0 var(--ink);
+    }
+
+    /* VISTA DE RESULTADO FINAL */
+    .result-view {
+      display: none;
+      animation: bounceIn 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    @keyframes bounceIn {
+      from { opacity: 0; transform: scale(0.92); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .result-header {
+      display: flex;
+      gap: 24px;
+      align-items: center;
+      margin-bottom: 24px;
+      border-bottom: 4px dashed #d8c8b0;
+      padding-bottom: 24px;
+    }
+
+    .result-avatar {
+      width: 132px;
+      height: 132px;
+      border-radius: 50%;
+      border: 5px solid var(--ink);
+      background: var(--circus-white);
+      object-fit: cover;
+      flex-shrink: 0;
+      box-shadow: 6px 6px 0px var(--circus-red);
+    }
+
+    .result-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .result-tag {
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--circus-white);
+      background: var(--circus-purple);
+      padding: 4px 12px;
+      border-radius: 8px;
+      border: 2.5px solid var(--ink);
+      width: fit-content;
+      box-shadow: 2px 2px 0px var(--ink);
+    }
+
+    .result-name {
+      font-family: 'Shrikhand', cursive;
+      font-size: 2.8rem;
+      color: var(--circus-red);
+      line-height: 1.05;
+      text-shadow: 3px 3px 0px var(--circus-yellow);
+    }
+
+    .result-title {
+      font-size: 1.15rem;
+      color: var(--ink);
+      font-weight: 700;
+    }
+
+    .analysis-block {
+      background: var(--circus-white);
+      border: 3.5px solid var(--ink);
+      border-radius: 16px;
+      padding: 20px 22px;
+      margin-bottom: 18px;
+      line-height: 1.6;
+      font-size: 1.04rem;
+      box-shadow: 5px 5px 0px var(--ink);
+    }
+
+    .analysis-block h4 {
+      font-family: 'Shrikhand', cursive;
+      font-size: 1.3rem;
+      color: var(--circus-purple);
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+
+    .eniac-verdict {
+      background: #ffe3e7;
+      border: 3.5px solid var(--circus-red-dark);
+      border-radius: 16px;
+      padding: 20px 22px;
+      margin-bottom: 24px;
+      line-height: 1.55;
+      font-size: 1.02rem;
+      color: #5c0a14;
+      font-weight: 600;
+      box-shadow: 5px 5px 0px var(--circus-red-dark);
+    }
+
+    .eniac-verdict h4 {
+      font-family: 'Shrikhand', cursive;
+      font-size: 1.3rem;
+      color: var(--circus-red-dark);
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+
+    .action-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .whatsapp-btn {
+      width: 100%;
+      background: var(--circus-green);
+      color: var(--ink);
+      border: 4px solid var(--ink);
+      padding: 15px;
+      border-radius: 16px;
+      font-family: 'Shrikhand', cursive;
+      font-size: 1.3rem;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: all 0.15s;
+      box-shadow: 5px 5px 0px var(--ink);
+    }
+
+    .whatsapp-btn:hover {
+      background: #4ae87c;
+      transform: translate(-2px, -2px);
+      box-shadow: 7px 7px 0px var(--ink);
+    }
+
+    .restart-btn {
+      width: 100%;
+      background: var(--circus-yellow);
+      color: var(--ink);
+      border: 4px solid var(--ink);
+      padding: 14px;
+      border-radius: 16px;
+      font-family: 'Shrikhand', cursive;
+      font-size: 1.2rem;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: all 0.15s;
+      box-shadow: 5px 5px 0px var(--ink);
+    }
+
+    .restart-btn:hover {
+      background: #ffde59;
+      transform: translate(-2px, -2px);
+      box-shadow: 7px 7px 0px var(--ink);
+    }
+
+    /* Contenedor oculto para el reproductor de YouTube */
+    #yt-player-container {
+      position: fixed;
+      width: 1px;
+      height: 1px;
+      bottom: -10px;
+      left: -10px;
+      opacity: 0.01;
+      pointer-events: none;
+    }
+
+    @media (max-width: 680px) {
+      .stage-curtain-left, .stage-curtain-right {
+        width: 32px;
+      }
+      .prop-block, .polka-orb, .abstraction-patch {
+        display: none;
+      }
+      .result-header {
+        flex-direction: column;
+        text-align: center;
+      }
+      .result-meta {
+        align-items: center;
+      }
+      .intro-title {
+        font-size: 2.4rem;
+      }
+      .host-card {
+        flex-direction: column;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- LIENZO DE CONFETI -->
+  <canvas id="confetti-canvas"></canvas>
+
+  <!-- REPRODUCTOR YOUTUBE OCULTO (THE AMAZING DIGITAL CIRCUS MAIN THEME: H-AT42lYGBg) -->
+  <div id="yt-player-container">
+    <div id="yt-player"></div>
+  </div>
+
+  <!-- BOTONES DE CONTROL DE MÚSICA Y EFECTOS (SFX) -->
+  <div class="audio-toolbar">
+    <button id="btn-music" class="sound-toggle" onclick="toggleMusic()">
+      🎵 Música: ON
+    </button>
+    <button id="btn-sfx" class="sound-toggle" onclick="toggleSfx()">
+      🔊 Efectos: ON
+    </button>
+  </div>
+
+  <!-- ESCENOGRAFÍA EN REFERENCIA A THE AMAZING DIGITAL CIRCUS (LA SERIE) -->
+  <div class="tadc-scenery">
+    <div class="stage-curtain-left"></div>
+    <div class="stage-curtain-right"></div>
+    <div class="floating-prop prop-exit">EXIT</div>
+    <div class="floating-prop prop-block block-a">A</div>
+    <div class="floating-prop prop-block block-b">B</div>
+    <div class="floating-prop prop-block block-c">C</div>
+    <div class="polka-orb"></div>
+    <div class="abstraction-patch" title="Ojos de Abstracción">
+      <div class="abs-eye"></div>
+      <div class="abs-eye"></div>
+      <div class="abs-eye"></div>
+    </div>
+    <div class="checker-floor-bg"></div>
+  </div>
+
+  <div class="container">
+    <!-- ENIAC // ANFITRIÓN DEL SISTEMA -->
+    <div class="host-card">
+      <div class="host-badge">ENIAC EN LÍNEA</div>
+      <div class="host-speech" id="host-dialogue">
+        «¡Bienvenidos a la Carpa Digital! Disfruten del confeti recién renderizado mientras escaneo sus traumas para asignarles su dormitorio definitivo.»
+      </div>
+    </div>
+
+    <!-- TARJETA PRINCIPAL -->
+    <div class="card">
+      <!-- VISTA 1: INTRODUCCIÓN -->
+      <div id="view-intro" class="intro-view">
+        <div class="logo-banner">C&A // SISTEMA DE ASIGNACIÓN</div>
+        <h1 class="intro-title">¿Qué OC del Circo Eres?</h1>
+        <p class="intro-desc">
+          Diez dilemas psicológicos de 6 opciones (A-F) para descubrir qué puerta del pasillo lleva tu nombre grabado. ¡Sube el volumen!
+        </p>
+        <button class="start-btn" onclick="startQuiz()">¡ENTRAR AL TEST!</button>
+      </div>
+
+      <!-- VISTA 2: PREGUNTAS -->
+      <div id="view-quiz" style="display: none;">
+        <div class="progress-bar-wrap">
+          <div class="progress-bar" id="progress-bar"></div>
+        </div>
+        <div class="question-tracker" id="q-tracker">PREGUNTA [01/10]</div>
+        <div class="question-title" id="q-title">Cargando dilema...</div>
+        <div class="options-grid" id="q-options"></div>
+      </div>
+
+      <!-- VISTA 3: ANIMACIÓN MEJORADA DE LA PUERTA -->
+      <div id="view-door" class="stage-view">
+        <div class="hallway-scene" id="hallway-scene">
+          <div class="hallway-bg"></div>
+          <div class="hallway-wainscot"></div>
+          <div class="floor-check"></div>
+          
+          <div class="door-frame" id="door-frame">
+            <!-- INTERIOR REVELADO -->
+            <div class="room-interior">
+              <div class="sunburst-rays"></div>
+              <img id="door-result-img" class="revealed-avatar" src="" alt="OC Result">
+            </div>
+            <!-- HOJA DE LA PUERTA CON MEDALLÓN DE MISTERIO -->
+            <div class="door-panel" id="door-panel">
+              <div class="door-molding-top">
+                <div class="door-medallion">
+                  <span class="door-medallion-sign">?</span>
+                </div>
+              </div>
+              <div class="door-molding-bottom"></div>
+              <div class="door-knob"></div>
+            </div>
+          </div>
+        </div>
+        <div class="door-status-banner" id="door-status-text">
+          🥁 Redoble de tambores... calculando habitación...
+        </div>
+      </div>
+
+      <!-- VISTA 4: DIAGNÓSTICO FINAL Y BOTÓN DE WHATSAPP -->
+      <div id="view-result" class="result-view">
+        <div class="result-header">
+          <img id="res-avatar" class="result-avatar" src="" alt="Avatar">
+          <div class="result-meta">
+            <div class="result-tag" id="res-tag">COMPATIBILIDAD CONFIRMADA</div>
+            <div class="result-name" id="res-name">Nombre</div>
+            <div class="result-title" id="res-archetype">Arquetipo Psicológico</div>
+          </div>
+        </div>
+
+        <div class="analysis-block">
+          <h4>DIAGNÓSTICO PSICOLÓGICO</h4>
+          <p id="res-analysis">Cargando perfil...</p>
+        </div>
+
+        <div class="eniac-verdict">
+          <h4>VEREDICTO DE ENIAC</h4>
+          <p id="res-eniac">Cargando veredicto...</p>
+        </div>
+
+        <div class="action-buttons">
+          <button id="btn-whatsapp" class="whatsapp-btn" onclick="copyForWhatsApp()">
+            📲 COPIAR RESULTADO PARA WHATSAPP
+          </button>
+          <button class="restart-btn" onclick="restartQuiz()">
+            🔄 VOLVER A INTENTAR EL TEST
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ==========================================================
+       1. SISTEMA DE AUDIO (YOUTUBE IFRAME API + WEB AUDIO SFX)
+       ========================================================== */
+    let musicEnabled = true;
+    let sfxEnabled = true;
+    let ytPlayer = null;
+    let ytReady = false;
+    let audioCtx = null;
+    let fallbackInterval = null;
+
+    // Cargar YouTube IFrame API (Video oficial: H-AT42lYGBg)
+    const tag = document.createElement('script');
+    tag.src = "https://www.youtube.com/iframe_api";
+    const firstScriptTag = document.getElementsByTagName('script')[0];
+    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+    function onYouTubeIframeAPIReady() {
+      ytPlayer = new YT.Player('yt-player', {
+        height: '10',
+        width: '10',
+        videoId: 'H-AT42lYGBg',
+        playerVars: {
+          autoplay: 0,
+          controls: 0,
+          loop: 1,
+          playlist: 'H-AT42lYGBg',
+          start: 16
+        },
+        events: {
+          onReady: () => { ytReady = true; }
+        }
+      });
+    }
+
+    function initAudioContext() {
+      if (!audioCtx) {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new AudioContext();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    function startBackgroundMusic() {
+      if (!musicEnabled) return;
+      if (ytReady && ytPlayer && typeof ytPlayer.playVideo === 'function') {
+        try {
+          ytPlayer.setVolume(45);
+          ytPlayer.seekTo(16, true);
+          ytPlayer.playVideo();
+        } catch (e) {}
+      }
+    }
+
+    function stopBackgroundMusic() {
+      if (ytReady && ytPlayer && typeof ytPlayer.pauseVideo === 'function') {
+        try {
+          ytPlayer.pauseVideo();
+        } catch (e) {}
+      }
+      if (fallbackInterval) {
+        clearInterval(fallbackInterval);
+        fallbackInterval = null;
+      }
+    }
+
+    function toggleMusic() {
+      initAudioContext();
+      musicEnabled = !musicEnabled;
+      const btn = document.getElementById('btn-music');
+      if (musicEnabled) {
+        btn.innerText = "🎵 Música: ON";
+        btn.classList.remove('muted');
+        if (document.getElementById('view-quiz').style.display === 'block') {
+          startBackgroundMusic();
+        }
+      } else {
+        btn.innerText = "🔇 Música: OFF";
+        btn.classList.add('muted');
+        stopBackgroundMusic();
+      }
+    }
+
+    function toggleSfx() {
+      initAudioContext();
+      sfxEnabled = !sfxEnabled;
+      const btn = document.getElementById('btn-sfx');
+      if (sfxEnabled) {
+        btn.innerText = "🔊 Efectos: ON";
+        btn.classList.remove('muted');
+        playPopSfx();
+      } else {
+        btn.innerText = "🔈 Efectos: OFF";
+        btn.classList.add('muted');
+      }
+    }
+
+    // Efecto al elegir opción (Pop alegre de juguete)
+    function playPopSfx() {
+      if (!sfxEnabled) return;
+      initAudioContext();
+      const now = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(320, now);
+      osc.frequency.exponentialRampToValueAtTime(680, now + 0.09);
+      gain.gain.setValueAtTime(0.22, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.11);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start(now);
+      osc.stop(now + 0.11);
+    }
+
+    // Redoble de tambores (Drumroll real sintetizado)
+    function playDrumrollSfx(durationMs = 1500) {
+      if (!sfxEnabled) return;
+      initAudioContext();
+      const steps = 26;
+      const stepTime = (durationMs / 1000) / steps;
+      for (let i = 0; i < steps; i++) {
+        const startTime = audioCtx.currentTime + (i * stepTime);
+        // Ruido de caja (snare) + golpe grave
+        const bufferSize = audioCtx.sampleRate * 0.045;
+        const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let j = 0; j < bufferSize; j++) {
+          data[j] = Math.random() * 2 - 1;
+        }
+        const noise = audioCtx.createBufferSource();
+        noise.buffer = buffer;
+
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.value = 900 + (i * 18);
+
+        const gain = audioCtx.createGain();
+        const vol = 0.06 + (i / steps) * 0.22; // Crescendo
+        gain.gain.setValueAtTime(vol, startTime);
+        gain.gain.exponentialRampToValueAtTime(0.005, startTime + 0.045);
+
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(audioCtx.destination);
+        noise.start(startTime);
+      }
+    }
+
+    // Fanfarria triunfal al abrirse la puerta
+    function playRevealFanfare() {
+      if (!sfxEnabled) return;
+      initAudioContext();
+      const notes = [523.25, 659.25, 783.99, 1046.50]; // Do, Mi, Sol, Do alto
+      notes.forEach((freq, idx) => {
+        const start = audioCtx.currentTime + idx * 0.09;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(freq, start);
+        gain.gain.setValueAtTime(0.15, start);
+        gain.gain.exponentialRampToValueAtTime(0.001, start + 0.55);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(start);
+        osc.stop(start + 0.55);
+      });
+    }
+
+    /* ==========================================================
+       2. ANIMACIÓN CORTA DE CONFETI EN PANTALLA INICIAL Y FINAL
+       ========================================================== */
+    const canvas = document.getElementById('confetti-canvas');
+    const ctx = canvas.getContext('2d');
+    let confettiParticles = [];
+    let confettiAnimId = null;
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    function launchConfetti(duration = 2800) {
+      const colors = ['#f32b42', '#ffd026', '#3b95e3', '#2ed162', '#a855f7', '#ff6ec7', '#ffffff'];
+      confettiParticles = [];
+      for (let i = 0; i < 95; i++) {
+        confettiParticles.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * -canvas.height * 0.6 - 20,
+          w: 9 + Math.random() * 8,
+          h: 6 + Math.random() * 6,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          vy: 3.2 + Math.random() * 4.5,
+          vx: (Math.random() - 0.5) * 3,
+          angle: Math.random() * 360,
+          vAngle: (Math.random() - 0.5) * 10
+        });
+      }
+
+      const startTime = performance.now();
+      if (confettiAnimId) cancelAnimationFrame(confettiAnimId);
+
+      function frame(now) {
+        const elapsed = now - startTime;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        confettiParticles.forEach(p => {
+          p.x += p.vx;
+          p.y += p.vy;
+          p.angle += p.vAngle;
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate((p.angle * Math.PI) / 180);
+          ctx.fillStyle = p.color;
+          ctx.strokeStyle = '#161224';
+          ctx.lineWidth = 1.5;
+          ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+          ctx.strokeRect(-p.w / 2, -p.h / 2, p.w, p.h);
+          ctx.restore();
+        });
+
+        if (elapsed < duration) {
+          confettiAnimId = requestAnimationFrame(frame);
+        } else {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+      }
+      confettiAnimId = requestAnimationFrame(frame);
+    }
+
+    // Lanzar confeti corto al cargar la pantalla inicial
+    window.addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => launchConfetti(3000), 250);
+    });
+
+    /* ==========================================================
+       3. PERFILES DE LOS 8 OCs (CALIBRADOS CON EL DOCUMENTO)
+       ========================================================== */
+    const OCS = {
+      ayoli: {
+        id: "ayoli",
+        nombre: "Ayoli",
+        icono: "./ayoli.png",
+        arquetipo: "La Redención Silenciosa / El Refugio en la Tormenta",
+        analisis: "Detrás de una actitud adaptable que oscila entre intentar mostrarte madura y terminar cediendo con dulzura ante la presión, cargas con el peso de decisiones pasadas que sientes que debes enmendar. Aunque el entorno parezca una penitencia sin salida, te mantiene en pie una promesa sagrada: encontrar el camino de vuelta hacia aquello que más amas y dejaste pendiente.",
+        eniac: "«Te esfuerzas tanto en portarte bien y abrazar tus recuerdos que casi me das ternura... Casi. Ambos sabemos por qué no sueltas esa pequeña estrella ni por un segundo.»"
+      },
+      gramm: {
+        id: "gramm",
+        nombre: "Gramm",
+        icono: "./gramm.png",
+        arquetipo: "El Centinela Herido / La Elegancia Calculada",
+        analisis: "Las marcas del pasado te enseñaron por las malas que bajar la guardia sale caro. Por eso prefieres mantener una postura pulcra, distante y analítica, ubicándote donde puedas vigilar cada esquina sin que nadie te tome por sorpresa. Aunque proyectes autosuficiencia solitaria, en el fondo guardas una lealtad inquebrantable hacia quien alguna vez te brindó paz genuina.",
+        eniac: "«Tanta compostura y manos cruzadas no engañan a mis sensores, experimento mío. Sigues saltando ante el menor susto inesperado mientras extrañas tu viejo rincón de arte.»"
+      },
+      boll: {
+        id: "boll",
+        nombre: "Boll",
+        icono: "./boll",
+        icono: "./boll.png",
+        arquetipo: "El Pragmático Leal / El Eje de Acero",
+        analisis: "No necesitas darle vueltas filosóficas al pasado para saber exactamente cuáles son tus principios. Frente a las crisis, tu mente descarta el drama innecesario y busca la solución más directa, práctica y efectiva. Eres de contacto franco, lealtad protectora hacia los más vulnerables y una paciencia silenciosa para acompañar y admirar a quien te importa de verdad.",
+        eniac: "«Te desarmas contra el piso en el minuto uno y aun así pretendes poner orden con un '¿Y luego?'. Admirable pragmatismo, siempre y cuando nadie suba demasiado los decibelios.»"
+      },
+      dottie: {
+        id: "dottie",
+        nombre: "Dottie",
+        icono: "./dottie.png",
+        arquetipo: "La Confidente Invisible / El Corazón tras el Maquillaje",
+        analisis: "Eres un alma profundamente romántica, imaginativa y sensible que aprendió a ponerse una coraza de formalidad o alegría para sobrevivir a entornos fríos y exigentes. No soportas ver que excluyan a alguien, convirtiéndote en la caja de secretos y el lugar seguro de todos, aunque eso implique tragarte tu propia tristeza hasta que la ansiedad te hace estallar.",
+        eniac: "«Sonríes, integras a todos y anotas fantasías a escondidas mientras tiemblas cada vez que aparezco. Cuidado con morder tanto ese lápiz, querida, se te va a correr el labial.»"
+      },
+      su: {
+        id: "su",
+        nombre: "Sü",
+        icono: "./su.png",
+        arquetipo: "La Guardiana Sigilosa / La Calma Resiliente",
+        analisis: "Acostumbrada desde temprano a no encajar del todo y a soportar tormentas en silencio, desarrollaste una sensibilidad aguda para escuchar lo que otros callan y moverte sin hacer ruido. Aunque al principio dudes de tu propio valor, en los momentos de mayor crisis sacas una madurez serena capaz de sostener al grupo entero cuando todo amenaza con romperse.",
+        eniac: "«Caminas tan suavecito que casi olvidas hacer ruido, pero tus orejas te delatan cada vez que aguantas la respiración. Tranquila, aquí nadie va a ignorarte... mis cámaras te ven siempre.»"
+      },
+      glix: {
+        id: "glix",
+        nombre: "Glix",
+        icono: "./glix.png",
+        arquetipo: "El Trazo Inacabado / La Audacia entre Arrugas",
+        analisis: "Vives en una tensión constante entre tu exigencia extrema de perfección y el miedo a sentirte como un borrador sin terminar. Los cambios bruscos, las manchas o el descontrol te encogen de nervios al inicio; sin embargo, cuando logras construir confianza real con los tuyos, eres capaz de una valentía temeraria que se planta de frente ante cualquier autoridad.",
+        eniac: "«¡HIP! Perdón, ¿te asusté? Qué ironía tan deliciosa: tanto buscar la obra maestra en vida para terminar cuidando que una corriente de aire o un trueno no te arruguen el perfil.»"
+      },
+      mico: {
+        id: "mico",
+        nombre: "Mico",
+        icono: "./mico.png",
+        arquetipo: "La Descarga Adrenalínica / El Escudo Reactivo",
+        analisis: "Prefieres mil veces lanzarte de cabeza al peligro, la música a solas o la acción física antes que sentarte a exponer tus sentimientos y arriesgarte a que los invaliden. Cuando alguien intenta escarbar en tu vulnerabilidad, sueltas una ocurrencia sin sentido o cambias de tema de golpe, ocultando bajo tu ala una devoción enorme por quienes lograron derribar tu apatía.",
+        eniac: "«Brazos abiertos, mirada oculta y lista para repartir golpes antes que responder una sola pregunta íntima. Qué tierno cómo guardas tus dibujos en secreto cuando crees que nadie mira.»"
+      },
+      zou: {
+        id: "zou",
+        nombre: "Zou",
+        icono: "./zou.png",
+        arquetipo: "El Contraste Afilado / La Presencia Inalterable",
+        analisis: "Te manejas sin rodeos, medias tintas ni adornos innecesarios. Mientras otros se desgastan intentando fingir normalidad o complacer al resto, tú mantienes una compostura angulosa, directa y plana frente al absurdo. Valoras las conexiones simples y honestas, cortando de raíz cualquier intento de drama artificial.",
+        eniac: "«Ni un solo matiz gris en tu código. Me fascina lo poco que te esfuerzas en disimular tu indiferencia ante mis espectáculos; eres como un corte de papel directo a la pupila.»"
+      }
+    };
+
+    /* ==========================================================
+       4. LAS 10 PREGUNTAS (SOLO 6 OPCIONES A-F CON GUIÑOS AL LORE)
+       ========================================================== */
+    const QUESTIONS = [
+      {
+        text: "1. Antes de que todo cambiara, ¿qué sensación interna definía tu forma de lidiar con el mundo exterior?",
+        options: [
+          {
+            label: "Sentir que una responsabilidad enorme alteró mi rumbo y que mis propios escapes impulsivos me dejaron una deuda pendiente con quien más amo.",
+            weights: { ayoli: 3, mico: 1 }
+          },
+          {
+            label: "Frustrarme en silencio porque, por más horas que practicara buscando algo perfecto, sentía que mis intentos quedaban como rayones sin terminar.",
+            weights: { glix: 3, dottie: 1 }
+          },
+          {
+            label: "Tener que esconder mis gustos creativos y mi sensibilidad tras una máscara seria para que un entorno frío y abusivo no me viera débil.",
+            weights: { dottie: 3, su: 1 }
+          },
+          {
+            label: "Vivir con la guardia arriba tras una mala experiencia que me marcó físicamente, encontrando paz únicamente en un rincón de arte con alguien especial.",
+            weights: { gramm: 3, zou: 1 }
+          },
+          {
+            label: "No encajar en ningún sitio por constantes cambios y hostilidad ajena, refugiándome en la música clásica, la lectura y el silencio.",
+            weights: { su: 3, ayoli: 1 }
+          },
+          {
+            label: "No darle vueltas al pasado ni a nostalgias borrosas: quedarme únicamente con mis principios firmes y con lo que tengo de frente hoy.",
+            weights: { boll: 3, zou: 2, mico: 1 }
+          }
+        ]
+      },
+      {
+        text: "2. Cuando el anfitrión irrumpe de golpe con una situación caótica, ¿qué delata tu cuerpo sin que puedas evitarlo?",
+        options: [
+          {
+            label: "Soltar un sobresalto agudo casi como un hipo involuntario, contener el aliento sintiendo que me arrugo entero y cuidar de qué ángulo me miran.",
+            weights: { glix: 3, ayoli: 1 }
+          },
+          {
+            label: "Cubrirme parte del rostro para que no lean mi expresión, caminar con los brazos abiertos o rebotar la tensión buscando acción inmediata.",
+            weights: { mico: 3, boll: 1 }
+          },
+          {
+            label: "Llevarme las manos a la cadera, flexionar ligeramente la pierna y soltar un seco «Osh... ¿y luego?» para cortar el pánico.",
+            weights: { boll: 3, zou: 2 }
+          },
+          {
+            label: "Forzar mi mejor sonrisa juguetona, tocarme la mejilla o retocar mi aspecto frente a un espejito para que nadie note que me muero de miedo.",
+            weights: { dottie: 3, ayoli: 1 }
+          },
+          {
+            label: "Aguantar la respiración mientras mis reflejos me delatan, moviéndome con absoluto sigilo y agudizando el oído desde lejos.",
+            weights: { su: 3, gramm: 1 }
+          },
+          {
+            label: "Mantener una postura rígida y elegante con las manos cruzadas en orden, vigilando cada sombra para que nadie se acerque por detrás.",
+            weights: { gramm: 3, zou: 2 }
+          }
+        ]
+      },
+      {
+        text: "3. Si Eniac suelta una caja de armamento en medio de la sala y desata el caos, ¿qué eliges por puro instinto?",
+        options: [
+          {
+            label: "No sé nada del tema, así que agarro el cañón de corredera más grande, pesado e intimidante que vea solo para que nadie se me acerque.",
+            weights: { ayoli: 3, dottie: 1 }
+          },
+          {
+            label: "Hojas cortas y precisas de combate cercano o mis propios puños; prefiero depender de mis reflejos a corta distancia.",
+            weights: { mico: 3, gramm: 3 }
+          },
+          {
+            label: "Un arma de fuego de alto calibre contundente o una gran hoja curva de largo alcance que imponga respeto de un solo tajo.",
+            weights: { boll: 3, zou: 2 }
+          },
+          {
+            label: "Un fusil compacto de líneas rectas y ráfaga controlada para mantener una distancia táctica sin ensuciarme en el cuerpo a cuerpo.",
+            weights: { glix: 3, gramm: 1 }
+          },
+          {
+            label: "Una hoja tradicional oriental de corte limpio o una ráfaga rápida, combinando velocidad silenciosa con determinación.",
+            weights: { su: 3, zou: 2 }
+          },
+          {
+            label: "Disparar a diestra y siniestra por la pura descarga de adrenalina y usar la agilidad de mis piernas para patear y correr.",
+            weights: { dottie: 3, mico: 2 }
+          }
+        ]
+      },
+      {
+        text: "4. En las horas muertas dentro de tu habitación, ¿en qué actividad encuentras tu verdadero refugio?",
+        options: [
+          {
+            label: "Encerrarme a tocar las cuerdas de mi guitarra o dibujar y escribir en secreto sobre la persona que me cambió la perspectiva de este lugar.",
+            weights: { mico: 3, dottie: 1 }
+          },
+          {
+            label: "Tomar un pincel y pintar cuadros por todas las paredes de mi cuarto para sentir que al menos ese espacio tiene la forma que yo quiero.",
+            weights: { glix: 3, gramm: 1 }
+          },
+          {
+            label: "Mordisquear un bolígrafo mientras escribo historias románticas y fanfics cursis en mi libreta lejos de las miradas de burla.",
+            weights: { dottie: 3, su: 1 }
+          },
+          {
+            label: "Abrazar en silencio ese pequeño objeto afelpado que nunca suelto, pensando en cómo enmendar mi vida cuando logre cruzar la salida.",
+            weights: { ayoli: 3, glix: 1 }
+          },
+          {
+            label: "Acercarme a quien vea cabizbajo con un tranquilo «Ya me aburrí... ¿te ayudo?» para hacerle compañía sin invadirlo.",
+            weights: { su: 3, boll: 2 }
+          },
+          {
+            label: "Disfrutar del silencio absoluto sin adornos ni dramas, revisando que todo esté en su sitio o descansando la vista en blanco y negro.",
+            weights: { zou: 3, gramm: 2, boll: 2 }
+          }
+        ]
+      },
+      {
+        text: "5. Cuando alguien del grupo intenta hacerte preguntas muy íntimas sobre tus heridas o tus sentimientos, ¿cómo reaccionas?",
+        options: [
+          {
+            label: "Cambio de tema de golpe o suelto cualquier tontería sin sentido por vergüenza; prefiero la adrenalina antes que sentirme invalidada.",
+            weights: { mico: 3, ayoli: 1 }
+          },
+          {
+            label: "Escucho los secretos de todos con cariño, pero oculto mi propia tristeza tras una sonrisa porque me cuesta horrores mostrarme vulnerable.",
+            weights: { dottie: 3, su: 1 }
+          },
+          {
+            label: "No me gusta que me interrumpan ni que vean mis fallos; me pongo a la defensiva al inicio, aunque si entro en confianza soy capaz de todo.",
+            weights: { glix: 3, gramm: 1 }
+          },
+          {
+            label: "Voy directo al grano sin rodeos sentimentales: demuestro mi afecto con palmadas, empujones suaves y resolviendo problemas reales.",
+            weights: { boll: 3, mico: 1 }
+          },
+          {
+            label: "Me cuesta abrirme por desconfianza aprendida, salvo que toquen la fibra de aquel vínculo único que dejé fuera de este mundo.",
+            weights: { gramm: 3, ayoli: 2 }
+          },
+          {
+            label: "Respondo con una frase cortante y plana o me quedo en silencio; no necesito justificar mi historia frente a nadie.",
+            weights: { zou: 3, su: 1 }
+          }
+        ]
+      },
+      {
+        text: "6. ¿Cuál de estas situaciones específicas te saca de tus casillas o te dispara el pánico de inmediato?",
+        options: [
+          {
+            label: "El retumbar de los truenos en una tormenta, una ráfaga de viento fuerte o que una simple mancha arruine mi pulcritud.",
+            weights: { glix: 3, gramm: 1 }
+          },
+          {
+            label: "Los estruendos excesivamente altos que saturan el ambiente y las quejas dramáticas que no resuelven nada.",
+            weights: { boll: 3, zou: 2 }
+          },
+          {
+            label: "Sentir que me ignoran por completo, que me dejan atrás en soledad o toparme de frente con una araña.",
+            weights: { su: 3, ayoli: 1 }
+          },
+          {
+            label: "Los sustos repentinos a traición, sentir decenas de ojos clavados en mí o que toquen a la persona que es mi talón de Aquiles.",
+            weights: { mico: 3, dottie: 1 }
+          },
+          {
+            label: "Un objeto alargado apareciendo de sorpresa a mis espaldas o que invadan mi espacio personal sin aviso.",
+            weights: { gramm: 3, glix: 1 }
+          },
+          {
+            label: "La idea aterradora de que jamás exista una puerta real de regreso y que mi paciencia llegue al límite hasta hacerme explotar.",
+            weights: { ayoli: 3, dottie: 3 }
+          }
+        ]
+      },
+      {
+        text: "7. En medio de una discusión grupal donde los ánimos empiezan a fracturarse, ¿qué rol asumes espontáneamente?",
+        options: [
+          {
+            label: "Intento mediar para que nadie se sienta aislado ni incómodo, aunque por dentro acumule tanta tensión que si me colman puedo ser hiriente.",
+            weights: { dottie: 3, mico: 1 }
+          },
+          {
+            label: "Analizo el problema en frío y propongo la salida más fácil y práctica, actuando como escudo de quienes veo más indefensos.",
+            weights: { boll: 3, su: 1 }
+          },
+          {
+            label: "Trato de portarme madura y cooperativa al principio, pero si el tono sube termino encogiéndome en un papel dócil y sumiso.",
+            weights: { ayoli: 3, glix: 1 }
+          },
+          {
+            label: "Mantengo la calma incluso si alguien está al borde de abstraerse, ofreciendo apoyo silencioso y un liderazgo discreto.",
+            weights: { su: 3, dottie: 1 }
+          },
+          {
+            label: "Intento que se lleven bien, pero si alguien se pasa de la raya no tengo el menor problema en resolverlo a golpes.",
+            weights: { mico: 3, boll: 1 }
+          },
+          {
+            label: "Observo desde el margen con expresión inmutable; los líos ajenos se ven más claros cuando eres plano y directo.",
+            weights: { zou: 3, gramm: 2 }
+          }
+        ]
+      },
+      {
+        text: "8. ¿Qué te genera una conexión inmediata o admiración hacia otro compañero dentro del circo?",
+        options: [
+          {
+            label: "La ternura de quien me trató con sensibilidad cuando recién llegué asustado, o compartir la misma naturaleza plana y bidimensional.",
+            weights: { glix: 3, zou: 3 }
+          },
+          {
+            label: "La espontaneidad rebelde de alguien que actúa a su propio ritmo; me basta con caminar a su lado, escucharla y ver su siguiente movimiento.",
+            weights: { boll: 3, mico: 2 }
+          },
+          {
+            label: "Alguien pragmático y firme cuya sola cercanía logró quitarme la apatía inicial y darme ganas de cooperar.",
+            weights: { mico: 3, boll: 2 }
+          },
+          {
+            label: "Las personas auténticas que me buscan como confidente en calma sin juzgar mis silencios ni mis rarezas.",
+            weights: { dottie: 3, su: 2 }
+          },
+          {
+            label: "Quienes respetan mi espacio personal, aprecian el arte y mantienen la compostura sin hacer escándalos innecesarios.",
+            weights: { gramm: 3, zou: 2 }
+          },
+          {
+            label: "Quienes me cuidan con cariño genuino sin hacerme sentir menos por mis errores o por mi tamaño.",
+            weights: { ayoli: 3, su: 2 }
+          }
+        ]
+      },
+      {
+        text: "9. Si tuvieras que describir la paradoja de tu propia apariencia y forma de ser en este lugar, ¿cuál sería?",
+        options: [
+          {
+            label: "Que mis detalles cambian de lugar cada día y mi cuerpo tarda en recobrar su forma, pero hay una parte de mí que jamás se despega.",
+            weights: { ayoli: 3, glix: 1 }
+          },
+          {
+            label: "Que carezco de colores para ocultar lo que siento, salvo por un pequeño detalle rojo que delata cuánto amor guardo debajo.",
+            weights: { dottie: 3, zou: 1 }
+          },
+          {
+            label: "Que siendo tan perfeccionista terminé convertido en un recorte imperfecto de trazos toscos que se dobla con el pánico.",
+            weights: { glix: 3, gramm: 1 }
+          },
+          {
+            label: "Que parezco una figura afelpada y adorable, pero cargué con heridas muy duras para aprender a moverme en las sombras.",
+            weights: { su: 3, ayoli: 1 }
+          },
+          {
+            label: "Que puedo desarmarme en pedazos si caigo mal, pero sigo siendo el soporte más firme y calculador cuando todo falla.",
+            weights: { boll: 3, mico: 2 }
+          },
+          {
+            label: "Que mis ángulos afilados y mi recorte oscuro en dos dimensiones dicen todo lo que pienso sin necesidad de disfraces.",
+            weights: { zou: 3, gramm: 2 }
+          }
+        ]
+      },
+      {
+        text: "10. Cuando miras hacia el futuro dentro de esta carpa digital, ¿qué certeza te sostiene al final del día?",
+        options: [
+          {
+            label: "Que esto es solo una prueba temporal y que tarde o temprano encontraré la salida para arreglar mis errores y volver a casa.",
+            weights: { ayoli: 3, dottie: 1 }
+          },
+          {
+            label: "Que aunque me tiemblen las piernas por el entorno, por defender a mis amigos soy capaz de plantarme y retar al mismísimo anfitrión.",
+            weights: { glix: 3, boll: 1 }
+          },
+          {
+            label: "Que mientras haya aventura, riesgo y esa persona especial a mi lado, prefiero vivir el presente a tope antes que lamentarme.",
+            weights: { mico: 3, boll: 2 }
+          },
+          {
+            label: "Que ya no soy invisible: encontré un grupo al cual cuidar, escuchar y sostener incluso en las peores tormentas.",
+            weights: { su: 3, dottie: 2 }
+          },
+          {
+            label: "Que mientras mantenga mis ojos bien abiertos, mi elegancia intacta y mi mente afilada, ningún experimento podrá quebrarme.",
+            weights: { gramm: 3, zou: 2 }
+          },
+          {
+            label: "Que las cosas son lo que son: sin ilusiones edulcoradas, resolviendo un paso lógico a la vez con total frialdad.",
+            weights: { zou: 3, boll: 2 }
+          }
+        ]
+      }
+    ];
+
+    /* ==========================================================
+       5. LÓGICA DEL CUESTIONARIO Y CÁLCULO DE RESULTADOS
+       ========================================================== */
+    let currentQ = 0;
+    let scores = { ayoli: 0, gramm: 0, boll: 0, dottie: 0, su: 0, glix: 0, mico: 0, zou: 0 };
+    let currentWinner = null;
+    let currentMatchPercent = 94;
+
+    function startQuiz() {
+      initAudioContext();
+      playPopSfx();
+      startBackgroundMusic();
+
+      document.getElementById('view-intro').style.display = 'none';
+      document.getElementById('view-quiz').style.display = 'block';
+      currentQ = 0;
+      scores = { ayoli: 0, gramm: 0, boll: 0, dottie: 0, su: 0, glix: 0, mico: 0, zou: 0 };
+      renderQuestion();
+    }
+
+    function renderQuestion() {
+      const q = QUESTIONS[currentQ];
+      const total = QUESTIONS.length;
+      
+      document.getElementById('progress-bar').style.width = `${((currentQ + 1) / total) * 100}%`;
+      document.getElementById('q-tracker').innerText = `PREGUNTA [${currentQ + 1 < 10 ? '0' + (currentQ + 1) : currentQ + 1}/${total}]`;
+      document.getElementById('q-title').innerText = q.text;
+      
+      const optContainer = document.getElementById('q-options');
+      optContainer.innerHTML = '';
+
+      q.options.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'opt-btn';
+        btn.innerHTML = `<span class="opt-index">${String.fromCharCode(65 + idx)}</span> <span>${opt.label}</span>`;
+        btn.onclick = () => selectOption(opt.weights);
+        optContainer.appendChild(btn);
+      });
+
+      if (currentQ === 3) {
+        document.getElementById('host-dialogue').innerText = "«¡Interesante elección! Tus mecanismos de defensa están pintando un retrato psicológico muy claro en mi consola...»";
+      } else if (currentQ === 7) {
+        document.getElementById('host-dialogue').innerText = "«¡Ya casi terminamos! Puedo escuchar desde aquí cómo intentas disimular tus manías, pero el algoritmo nunca falla.»";
+      }
+    }
+
+    function selectOption(weights) {
+      playPopSfx();
+      for (const [oc, pts] of Object.entries(weights)) {
+        if (scores[oc] !== undefined) {
+          scores[oc] += pts;
+        }
+      }
+      currentQ++;
+      if (currentQ < QUESTIONS.length) {
+        renderQuestion();
+      } else {
+        finishQuiz();
+      }
+    }
+
+    function finishQuiz() {
+      document.getElementById('view-quiz').style.display = 'none';
+      document.getElementById('view-door').style.display = 'flex';
+      document.getElementById('host-dialogue').innerText = "«¡Escaneo completado! Atención al pasillo... escuchen ese redoble y descubramos qué puerta se abre para ti.»";
+
+      // Determinar ganador
+      let highest = -1;
+      let totalPts = 0;
+      let winnerId = "glix";
+      for (const [id, score] of Object.entries(scores)) {
+        totalPts += score;
+        if (score > highest) {
+          highest = score;
+          winnerId = id;
+        }
+      }
+
+      currentWinner = OCS[winnerId];
+      currentMatchPercent = Math.min(99, Math.max(84, Math.round((highest / 30) * 100) + 12));
+
+      const doorImg = document.getElementById('door-result-img');
+      doorImg.src = currentWinner.icono;
+
+      const doorFrame = document.getElementById('door-frame');
+      const hallwayScene = document.getElementById('hallway-scene');
+      const statusText = document.getElementById('door-status-text');
+
+      // 1. Redoble de tambores y temblor de puerta con medallón '?'
+      statusText.innerText = "🥁 Redoble de tambores... asignando habitación...";
+      doorFrame.classList.add('rumble', 'glow-active');
+      playDrumrollSfx(1600);
+
+      // 2. Giro del pomo dorado
+      setTimeout(() => {
+        doorFrame.classList.add('knob-turn');
+        statusText.innerText = "✨ ¡Puerta localizada! Abriendo cerrojo...";
+      }, 1300);
+
+      // 3. Apertura 3D de la puerta + Zoom de cámara + Fanfarria + Detener música del test
+      setTimeout(() => {
+        stopBackgroundMusic(); // La canción del test se detiene justo al revelarse el resultado
+        doorFrame.classList.remove('rumble');
+        doorFrame.classList.add('door-open');
+        hallwayScene.classList.add('camera-zoom');
+        statusText.innerText = `🎪 ¡Habitación de ${currentWinner.nombre} desbloqueada!`;
+        playRevealFanfare();
+        launchConfetti(3200);
+      }, 1750);
+
+      // 4. Mostrar ficha diagnóstica completa
+      setTimeout(() => {
+        showResultView(currentWinner);
+      }, 4100);
+    }
+
+    function showResultView(winner) {
+      document.getElementById('view-door').style.display = 'none';
+      const resView = document.getElementById('view-result');
+      resView.style.display = 'block';
+
+      document.getElementById('res-avatar').src = winner.icono;
+      document.getElementById('res-tag').innerText = `SINCRONÍA DEL ${currentMatchPercent}% // HABITACIÓN ASIGNADA`;
+      document.getElementById('res-name').innerText = winner.nombre;
+      document.getElementById('res-archetype').innerText = winner.arquetipo;
+      document.getElementById('res-analysis').innerText = winner.analisis;
+      document.getElementById('res-eniac').innerText = winner.eniac;
+      document.getElementById('host-dialogue').innerText = `«¡Diagnóstico finalizado! Tu mente encaja pieza por pieza con ${winner.nombre}. ¡Copia tu resultado y presúmelo en el grupo!»`;
+    }
+
+    // Copiar resultado formateado para WhatsApp
+    function copyForWhatsApp() {
+      if (!currentWinner) return;
+      playPopSfx();
+      const text = 
+`🎪 *PROTOCOLO ENIAC // CIRCO DIGITAL* 🎪
+🚪 *Mi puerta asignada es:* ${currentWinner.nombre.toUpperCase()} (${currentMatchPercent}% de sincronía)
+🎭 *Arquetipo:* ${currentWinner.arquetipo}
+
+📋 *Diagnóstico:*
+_${currentWinner.analisis}_
+
+👁️ *Veredicto de Eniac:*
+${currentWinner.eniac}
+
+🔗 *Descubre qué OC eres aquí:*
+${window.location.href}`;
+
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = document.getElementById('btn-whatsapp');
+        btn.innerText = "✅ ¡COPIADO! PÉGALO EN WHATSAPP";
+        setTimeout(() => {
+          btn.innerText = "📲 COPIAR RESULTADO PARA WHATSAPP";
+        }, 3000);
+      });
+    }
+
+    function restartQuiz() {
+      playPopSfx();
+      const doorFrame = document.getElementById('door-frame');
+      const hallwayScene = document.getElementById('hallway-scene');
+      doorFrame.classList.remove('rumble', 'glow-active', 'knob-turn', 'door-open');
+      hallwayScene.classList.remove('camera-zoom');
+
+      document.getElementById('view-result').style.display = 'none';
+      document.getElementById('view-intro').style.display = 'block';
+      document.getElementById('host-dialogue').innerText = "«¡Reinicio autorizado! Veamos si en este intento logras engañar a mis sensores.»";
+      launchConfetti(2200);
+    }
+  </script>
+</body>
+</html>
